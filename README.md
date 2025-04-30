@@ -108,6 +108,24 @@ To empower users to build emotionally intelligent time capsules by combining dee
 
 ---
 
+## 🧪 Testing Summary
+
+The Time Capsule Social Media App underwent rigorous unit testing to ensure smooth user experience and backend functionality.
+Unit Testing: Performed on create_post, image validation, mood tracking endpoints
+Fixes Implemented:
+Enforced MIME type checks on image uploads
+Validated allowed mood values before DB insertion
+Optimized database queries with indexes for large datasets
+
+### ✅ Unit Tests Covered
+- `create_post` endpoint: Verified required fields and proper database insertion.
+- `track_mood` endpoint: Tested for valid mood types and timestamp logging.
+- Image upload validation: Confirmed supported formats and secure storage.
+- Mood timeline retrieval: Validated user-specific historical data fetch.
+
+  ## 🧠 Takeaways
+This project challenged me to build a meaningful AI-integrated system that prioritizes emotional intelligence over conventional metrics like likes and shares. I developed technical depth in Flask, React, MongoDB, and AI deployment—while learning to prioritize privacy, emotional impact, and user autonomy in application design.
+
 ## 🙌 Acknowledgments
 
 Developed as part of **Spring 2025 Professional Seminar - COMP-699-G** under Prof. **Bhumip Khasnabish**.
