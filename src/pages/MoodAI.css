@@ -1,0 +1,261 @@
+.moodai-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .moodai-description {
+    color: #666;
+    margin-bottom: 20px;
+  }
+  
+  .moodai-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .moodai-form textarea {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .moodai-form button {
+    padding: 12px 20px;
+    background: #1877f2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .moodai-form button:hover {
+    background: #166fe5;
+  }
+  
+  .moodai-form button:disabled {
+    background: #aac4f0;
+    cursor: not-allowed;
+  }
+  
+  .mood-result {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .mood-prediction {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  /* Mood History Styles */
+.mood-history {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.mood-history h3 {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eaecef;
+}
+
+.history-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.history-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.history-container li {
+  background-color: white;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.history-container li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mood-entry {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.mood {
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mood::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.text {
+  color: #4a5568;
+  line-height: 1.5;
+  margin: 8px 0;
+}
+
+.time {
+  font-size: 0.85rem;
+  color: #718096;
+  text-align: right;
+}
+
+/* Emotion Colors */
+.mood[data-emotion="sadness"],
+.mini-prob[data-emotion="sadness"] { color: #3498db; }
+.mood[data-emotion="joy"],
+.mini-prob[data-emotion="joy"] { color: #f1c40f; }
+.mood[data-emotion="love"],
+.mini-prob[data-emotion="love"] { color: #e74c3c; }
+.mood[data-emotion="anger"],
+.mini-prob[data-emotion="anger"] { color: #e67e22; }
+.mood[data-emotion="fear"],
+.mini-prob[data-emotion="fear"] { color: #9b59b6; }
+.mood[data-emotion="surprise"],
+.mini-prob[data-emotion="surprise"] { color: #2ecc71; }
+
+/* Mini Probabilities */
+.mini-probabilities {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.mini-prob {
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background-color: currentColor;
+  color: white;
+}
+
+/* Scrollbar styling */
+.history-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.history-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.history-container::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.history-container::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Empty state */
+.history-container > p {
+  color: #718096;
+  text-align: center;
+  padding: 20px;
+}
+  
+  @media (max-width: 768px) {
+    .moodai-container {
+      padding: 15px;
+    }
+  }
+
+  .probabilities {
+    margin-top: 20px;
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .probabilities h4 {
+    margin-top: 0;
+    color: #555;
+  }
+  
+  .probabilities ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .probabilities li {
+    margin-bottom: 8px;
+  }
+  
+  .emotion-name {
+    display: inline-block;
+    width: 80px;
+    font-weight: bold;
+  }
+  
+  .emotion-prob {
+    display: inline-block;
+    width: 50px;
+    text-align: right;
+    margin-right: 10px;
+  }
+  
+  .progress-bar {
+    display: inline-block;
+    width: 150px;
+    height: 10px;
+    background: #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+    vertical-align: middle;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: #4CAF50;
+    transition: width 0.3s ease;
+  }
+  
+  .error-message {
+    color: #d32f2f;
+    background: #ffebee;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+  }

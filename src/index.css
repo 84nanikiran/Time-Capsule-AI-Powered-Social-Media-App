@@ -1,0 +1,11 @@
+/* Set full-page background */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #3a3a5a; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Arial', sans-serif;
+}
