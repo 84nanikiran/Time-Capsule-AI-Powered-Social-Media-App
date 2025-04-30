@@ -1,0 +1,223 @@
+# Time Capsule AI Flask API
+# --------------------------
+# APIs:
+# - /predict (port 5002): Aging effect on image
+# - /predict (port 5004): Mood detection from text
+# - /generate_story (port 5001): Story generation from image
+
+# Requirements:
+# pip install flask flask-cors torch torchvision pillow numpy opencv-python tensorflow transformers
+
+# ---------------- Aging Model API (Port 5002) ----------------
+
+from flask import Flask, request, jsonify, send_file
+from werkzeug.utils import secure_filename
+import os
+import torch
+import torch.nn as nn
+from torchvision import transforms
+from PIL import Image
+import io
+import cv2
+import numpy as np
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app, resources={r"/predict": {"origins": "*"}})
+
+MODEL_PATH = os.path.join('models', 'age_progression_model.pth')
+os.makedirs('uploads', exist_ok=True)
+
+class AgeProgressionModel(nn.Module):
+    def __init__(self):
+        super(AgeProgressionModel, self).__init__()
+        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+        self.fc1 = nn.Linear(128 * 32 * 32, 512)
+        self.fc2 = nn.Linear(512, 68 * 2)
+
+    def forward(self, x):
+        x = torch.relu(self.pool(self.conv1(x)))
+        x = torch.relu(self.pool(self.conv2(x)))
+        x = torch.relu(self.pool(self.conv3(x)))
+        x = x.view(x.size(0), -1)
+        x = torch.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+model = AgeProgressionModel()
+model.load_state_dict(torch.load(MODEL_PATH, map_location=torch.device('cpu')))
+model.eval()
+
+transform = transforms.Compose([
+    transforms.Resize((256, 256)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+
+def apply_aging_effects(image_pil):
+    img_cv = np.array(image_pil)
+    img_cv = cv2.cvtColor(img_cv, cv2.COLOR_RGB2BGR)
+    h, w = img_cv.shape[:2]
+
+    hair_overlay = img_cv.copy()
+    cv2.rectangle(hair_overlay, (0, 0), (w, h // 4), (200, 200, 200), -1)
+    img_cv = cv2.addWeighted(img_cv, 1.0, hair_overlay, 0.25, 0)
+
+    wrinkle_color = (45, 45, 45)
+    for y in range(h // 3, h // 2, 8):
+        cv2.line(img_cv, (int(w * 0.35), y), (int(w * 0.65), y), wrinkle_color, 1)
+    for x in range(int(w * 0.4), int(w * 0.6), 10):
+        cv2.line(img_cv, (x, int(h * 0.48)), (x, int(h * 0.52)), wrinkle_color, 1)
+
+    img_hsv = cv2.cvtColor(img_cv, cv2.COLOR_BGR2HSV)
+    img_hsv[..., 1] = (img_hsv[..., 1] * 0.6).astype(np.uint8)
+    img_cv = cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR)
+    img_rgb = cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB)
+
+    return Image.fromarray(img_rgb)
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    filename = secure_filename(file.filename)
+    file_path = os.path.join('uploads', filename)
+    file.save(file_path)
+
+    try:
+        original_image = Image.open(file_path).convert('RGB')
+        input_tensor = transform(original_image).unsqueeze(0)
+        with torch.no_grad():
+            _ = model(input_tensor)
+
+        aged_image = apply_aging_effects(original_image)
+
+        temp_file = io.BytesIO()
+        aged_image.save(temp_file, format='JPEG')
+        temp_file.seek(0)
+        os.remove(file_path)
+        return send_file(temp_file, mimetype='image/jpeg', as_attachment=True, download_name='future_image.jpg')
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ---------------- Mood Detection API (Port 5004) ----------------
+
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+import pickle
+import numpy as np
+import logging
+
+app_mood = Flask(__name__)
+CORS(app_mood)
+logging.basicConfig(level=logging.INFO)
+
+MODEL_PATH = 'models/mood_model.h5'
+TOKENIZER_PATH = 'models/tokenizer.pkl'
+ENCODER_PATH = 'models/label_encoder.pkl'
+
+model = load_model(MODEL_PATH)
+with open(TOKENIZER_PATH, 'rb') as f:
+    tokenizer = pickle.load(f)
+with open(ENCODER_PATH, 'rb') as f:
+    label_encoder = pickle.load(f)
+
+MAX_LEN = 100
+LABEL_MAP = {
+    0: "sadness 😢",
+    1: "joy 😊",
+    2: "love ❤️",
+    3: "anger 😠",
+    4: "fear 😨",
+    5: "surprise 😲"
+}
+
+@app_mood.route("/predict", methods=["POST", "OPTIONS"])
+def predict_text():
+    if request.method == "OPTIONS":
+        response = jsonify({"status": "ok"})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "*")
+        response.headers.add("Access-Control-Allow-Methods", "*")
+        return response
+
+    try:
+        data = request.get_json()
+        if not data or "text" not in data:
+            return jsonify({"error": "Missing text input"}), 400
+
+        text = data["text"].strip()
+        sequence = tokenizer.texts_to_sequences([text])
+        if not sequence or not sequence[0]:
+            return jsonify({"error": "Unable to tokenize text"}), 400
+
+        padded = pad_sequences(sequence, maxlen=MAX_LEN)
+        probs = model.predict(padded, verbose=0)[0]
+        predicted_index = np.argmax(probs)
+
+        return jsonify({
+            "emotion": LABEL_MAP.get(predicted_index, "unknown"),
+            "confidence": float(probs[predicted_index]),
+            "probabilities": {LABEL_MAP[i]: float(prob) for i, prob in enumerate(probs)}
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ---------------- Story Generator API (Port 5001) ----------------
+
+from transformers import BlipProcessor, BlipForConditionalGeneration
+
+app_story = Flask(__name__)
+CORS(app_story)
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+MODEL_PATH = "./caption_model"
+
+processor = BlipProcessor.from_pretrained(MODEL_PATH)
+model = BlipForConditionalGeneration.from_pretrained(MODEL_PATH).to(DEVICE)
+model.eval()
+
+MOOD_PROMPTS = {
+    "neutral": "",
+    "happy": "Write a cheerful story about this image:",
+    "sad": "Describe this image with a touch of sadness:",
+    "adventurous": "Imagine an adventurous tale based on this picture:",
+    "mysterious": "Tell a mysterious story from this photo:"
+}
+
+@app_story.route("/generate_story", methods=["POST"])
+def generate_story():
+    if 'image' not in request.files:
+        return jsonify({"error": "Missing image file"}), 400
+
+    try:
+        mood = request.form.get('mood', 'neutral')
+        prompt = MOOD_PROMPTS.get(mood, "")
+
+        image_file = request.files['image']
+        image = Image.open(image_file.stream).convert("RGB")
+        inputs = processor(image, prompt, return_tensors="pt").to(DEVICE)
+
+        with torch.no_grad():
+            output_ids = model.generate(**inputs, max_length=100)
+            story = processor.decode(output_ids[0], skip_special_tokens=True)
+
+        return jsonify({"story": story})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ---------------- Launch Servers ----------------
+# These should be run as separate processes ideally
+# Run separately:
+# python aging_api.py → port 5002
+# python mood_api.py → port 5004
+# python story_api.py → port 5001
