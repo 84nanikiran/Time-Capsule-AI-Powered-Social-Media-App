@@ -103,6 +103,8 @@ To empower users to build emotionally intelligent time capsules by combining dee
 - [`Generated_avatar`](https://github.com/84nanikiran/Time-Capsule-AI-Powered-Social-Media-App/blob/main/AI%20Generated%20Avatar.png)
 - [`Mood_tracking`](https://github.com/84nanikiran/Time-Capsule-AI-Powered-Social-Media-App/blob/main/Mood_AI.png)
 - [`AI Storytelling`](https://github.com/84nanikiran/Time-Capsule-AI-Powered-Social-Media-App/blob/main/Storytelling_AI.png)
+- [`Time Capsule `](https://github.com/84nanikiran/Time-Capsule-AI-Powered-Social-Media-App/blob/main/Time%20Capsule%20Social%20Media%20App.docx)
+
 
 ---
 
