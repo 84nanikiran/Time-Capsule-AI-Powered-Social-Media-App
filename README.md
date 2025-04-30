@@ -79,7 +79,7 @@ To empower users to build emotionally intelligent time capsules by combining dee
    `python app.py`
 
 4. Navigate to the frontend folder  
-   `cd frontend && npm install && npm start`
+   `cd backend && npm install && npm start`
 
 ---
 
@@ -97,7 +97,7 @@ To empower users to build emotionally intelligent time capsules by combining dee
 
 ---
 
-## 📂 Repository Highlights
+## 📂  Highlights
 
 - [`Backend_code.txt`](https://github.com/84nanikiran/Time-Capsule-AI-Powered-Social-Media-App/blob/main/%23%20Time%20Capsule%20AI%20Flask%20API.txt)
 - [`Generated_avatar`](https://github.com/84nanikiran/Time-Capsule-AI-Powered-Social-Media-App/blob/main/AI%20Generated%20Avatar.png)
